@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Changing Targets</title>
+    <link rel="stylesheet" href="../../assets/ol3/css/ol.css" type="text/css"/>
+    <link rel="stylesheet" href="../../assets/css/samples.css" type="text/css"/>
+  </head>
+  <body>
+    <div class="map">
+      <div id="map" class="half-map"></div>
+      <div id="map2" class="half-map"></div>
+    </div>
+    <button onclick="toggleMap();">Toggle Map</button>
+    <script src="../../assets/ol3/js/ol-debug.js"></script>
+    <script>
+      var layer = new ol.layer.Tile({
+        source: new ol.source.OSM()
+      });
+      var center = ol.proj.transform([-1.812,52.443], 'EPSG:4326', 'EPSG:3857');
+      var view = new ol.View({
+        center: center,
+        zoom: 6
+      });
+      var map = new ol.Map({
+        target: 'map',
+        layers: [layer],
+        view: view
+      });
+      function changeTarget() {
+        var target  = map.getTarget();
+        if(target == 'map') {
+          map.setTarget('map2');
+        } else {
+          map.setTarget('map');
+        }
+      }
+      function toggleMap() {
+        if(map.getTarget() == undefined) {
+          map.setTarget('map');
+        } else {
+          map.setTarget();
+        }
+        console.log('map toggled');
+      }
+    </script>
+  </body>
+</html>
