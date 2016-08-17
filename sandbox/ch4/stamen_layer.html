@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Stamen Layers</title>
+    <link rel="stylesheet" href="../../assets/ol3/css/ol.css" type="text/css"/>
+    <link rel="stylesheet" href="../../assets/css/samples.css" type="text/css"/>
+  </head>
+  <body>
+    <div id="map" class="map"></div>
+    <script src="../../assets/ol3/js/ol-debug.js"></script>
+    <script>
+      var stamenLayer = new ol.layer.Tile({
+        source: new ol.source.Stamen({
+          layer: 'toner-lite'
+        })
+      });
+      var map = new ol.Map({
+        layers: [stamenLayer],
+        target: 'map',
+        view: new ol.View({
+          center: ol.proj.transform([2.35239, 48.858391], 'EPSG:4326','EPSG:3857'),
+          zoom: 12
+        })
+      });
+    </script>
+  </body>
+</html>
