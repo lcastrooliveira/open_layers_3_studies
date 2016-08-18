@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Hello OpenStreetMap </title>
+    <link rel="stylesheet" href="../../assets/ol3/css/ol.css" type="text/css"/>
+    <link rel="stylesheet" href="../../assets/css/samples.css" type="text/css"/>
+  </head>
+  <body>
+    <div id="map" class="map"></div>
+    <script src="../../assets/ol3/js/ol-debug.js"></script>
+    <script src="bing_map_key.js"></script>
+    <script>
+      var sourceBingMaps = new ol.source.BingMaps({
+        key: bing_map_key,
+        imagerySet: 'Road'
+      });
+
+      var bingMapsRoad = new ol.layer.Tile({
+        source: sourceBingMaps,
+        opacity: 0.8
+      });
+
+      var bingMapsAerial = new ol.layer.Tile({
+        source: new ol.source.BingMaps({
+          key: bing_map_key,
+          imagerySet: 'Aerial'
+        }),
+        opacity: 0.5
+      });
+
+      var map = new ol.Map({
+        layers: [bingMapsAerial,bingMapsRoad],
+        target: 'map',
+        view: new ol.View({
+          center: ol.proj.transform([6.562783, 46.517814], 'EPSG:4326','EPSG:3857'),
+          zoom: 13
+        })
+      });
+    </script>
+  </body>
+</html>
