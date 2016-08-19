@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Simple Vector Layer</title>
+    <link rel="stylesheet" href="../../assets/ol3/css/ol.css" type="text/css"/>
+    <link rel="stylesheet" href="../../assets/css/samples.css" type="text/css"/>
+  </head>
+  <body>
+    <div id="map" class="map"></div>
+    <div id='name'>/<div>
+    <script src="../../assets/ol3/js/ol.js"></script>
+    <script>
+      var source = new ol.source.GeoJSON({
+        projection: 'EPSG:3857',
+        url: '../../assets/data/countries.geojson'
+      });
+      var countries = new ol.layer.Vector({
+        source: source
+      });
+      var center = ol.proj.transform([0,0],'EPSG:4326','EPSG:3857');
+      var view = new ol.View({
+        center: center,
+        zoom: 1
+      });
+      var map = new ol.Map({
+        target: 'map',
+        layers: [countries],
+        view: view
+      });
+      map.on('pointermove',onMouseMove);
+      function onMouseMove(browserEvent) {
+        var coordinate = browserEvent.coordinate;
+        var pixel = map.getPixelFromCoordinate(coordinate);
+        var el = document.getElementById('name');
+        el.innerHTML = '';
+        map.forEachFeatureAtPixel(pixel, function(feature) {
+          el.innerHTML += feature.get('name') + '<br>';
+        });
+      }
+    </script>
+  </body>
+</html>
