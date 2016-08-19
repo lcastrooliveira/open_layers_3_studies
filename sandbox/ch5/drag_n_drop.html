@@ -29,6 +29,27 @@
         stroke: stroke,
         image: circle
       });
+      var dragAndDrop = new ol.interaction.DragAndDrop({
+        formatConstructors: [
+          ol.format.GPX,
+          ol.format.GeoJSON,
+          ol.format.IGC,
+          ol.format.KML,
+          ol.format.TopoJSON
+        ]
+      });
+      dragAndDrop.on('addfeatures',function(event) {
+        console.log('here');
+        var vectorSource = new ol.source.Vector({
+          features: event.features,
+          projection: event.projection
+        });
+        map.getLayers().push(new ol.layer.Vector({
+          source: vectorSource,
+          style: vectorStyle
+        }));
+        view.fitExtent(vectorSource.getExtent(),map.getSize());
+      });
       var center = ol.proj.transform([-72.6,41.7],'EPSG:4326','EPSG:3857');
       var view = new ol.View({
         center: center,
@@ -39,6 +60,7 @@
         layers: [tiledRaster],
         view: view
       });
+      map.addInteraction(dragAndDrop);
     </script>
   </body>
 </html>
