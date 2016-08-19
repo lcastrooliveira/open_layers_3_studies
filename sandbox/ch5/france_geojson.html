@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Simple Vector Layer</title>
+    <link rel="stylesheet" href="../../assets/ol3/css/ol.css" type="text/css"/>
+    <link rel="stylesheet" href="../../assets/css/samples.css" type="text/css"/>
+  </head>
+  <body>
+    <div id="map" class="map"></div>
+    <script src="../../assets/ol3/js/ol.js"></script>
+    <script>
+
+      var rasterSource = new ol.source.OSM({projection: 'EPSG:3857'});
+
+      var vectorSource = new ol.source.GeoJSON({
+        projection: 'EPSG:3857',
+        url: '../../assets/data/france_4326.geojson'
+      });
+      var kmlSource = new ol.source.KML({
+        projection: 'EPSG:3857',
+        url: '../../assets/data/timezones.kml'
+      });
+
+      var baseLayer = new ol.layer.Tile({
+        source: rasterSource
+      });
+
+      var vectorLayer = new ol.layer.Vector({
+        source: vectorSource
+      });
+
+      var kmlLayer = new ol.layer.Vector({
+        source: kmlSource,
+        opacity: 0.5
+      });
+
+      var center = ol.proj.transform([0,0],'EPSG:4326','EPSG:3857');
+      var view = new ol.View({
+        center: center,
+        zoom: 3
+      });
+      var map = new ol.Map({
+        target: 'map',
+        layers: [baseLayer,kmlLayer,vectorLayer],
+        view: view
+      });
+    </script>
+  </body>
+</html>
