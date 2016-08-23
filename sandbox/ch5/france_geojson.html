@@ -9,12 +9,30 @@
     <div id="map" class="map"></div>
     <script src="../../assets/ol3/js/ol.js"></script>
     <script>
+      var crossOrigin = 'anonymous';
+      var rasterSource = new ol.source.OSM(
+        {
+        projection: 'EPSG:3857',
+        crossOrigin: null
+        }
+      );
+      var rotasSource = new ol.source.GeoJSON({
+        projection: 'EPSG:3857',
+        url: 'http://localhost:3000/rotas',
+        crossOrigin: crossOrigin
+      });
 
-      var rasterSource = new ol.source.OSM({projection: 'EPSG:3857'});
+      var municipiosSource = new ol.source.GeoJSON({
+        projection: 'EPSG:3857',
+        url: 'http://localhost:3000/municipios',
+        crossOrigin: crossOrigin
+      });
 
       var vectorSource = new ol.source.GeoJSON({
         projection: 'EPSG:3857',
-        url: '../../assets/data/france_4326.geojson'
+        url: 'http://localhost:3000/pontos_cicloturismo',
+        crossOrigin: crossOrigin
+        //url: '../../assets/data/my_geojson.geojson'
       });
       var kmlSource = new ol.source.KML({
         projection: 'EPSG:3857',
@@ -29,6 +47,14 @@
         source: vectorSource
       });
 
+      var rotasLayer = new ol.layer.Vector({
+        source: rotasSource
+      });
+
+      var municipiosLayer = new ol.layer.Vector({
+        source: municipiosSource
+      });
+
       var kmlLayer = new ol.layer.Vector({
         source: kmlSource,
         opacity: 0.5
@@ -41,7 +67,7 @@
       });
       var map = new ol.Map({
         target: 'map',
-        layers: [baseLayer,kmlLayer,vectorLayer],
+        layers: [baseLayer,municipiosLayer,vectorLayer,rotasLayer],
         view: view
       });
     </script>
