@@ -11,6 +11,12 @@
   background-color: #b5d0d0;
 }
 
-#popup {
+#popup, .myCustomClass {
   background: red
+}
+
+#myposition > .ol-mouse-position {
+  position: relative;
+  margin-left:20px;
+  font-size: 30px;
 }
