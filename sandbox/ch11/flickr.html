@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Flicker App</title>
+    <link rel="stylesheet" href="../../assets/ol3/css/ol.css" type="text/css"/>
+    <link rel="stylesheet" href="../../assets/css/samples.css" type="text/css"/>
+  </head>
+  <body>
+    <div id="map" class="map"></div>
+    <div id="search" style="position: absolute; top: 10px; right: 10px; padding: 5px; background-color: rgba(255,255,255,0.5)">
+      <input type="text" placeholder="Search photos by tag(s)" style="width: 200px"/>
+      <button type="button">Search</button>
+    </div>
+    <div id="photo_info"></div>
+    <script src="../../assets/ol3/js/ol-debug.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script>
+      function loadFlickrFeed(tags) {
+        selectedFeatures.clear();
+        flickrSource.clear();
+        $("#photo_info").empty();
+        $.ajax({
+          url: 'http://api.flickr.com/services/feeds/geo/',
+          data: {
+            format: 'json',
+            tags: tags
+          },
+          dataType: 'jsonp',
+          jsonpCallback:'jsonFlickrFeed',
+          success: successHandler
+        });
+      }
+      $(document).on('click','#search button',function() {
+        var value = $('#search input').val();
+        var tags = value.split(' ').join(',');
+        loadFlickrFeed(tags);
+      });
+      function successHandler(data) {
+        var transform = ol.proj.getTransform('EPSG:4326','EPSG:3857');
+        data.items.forEach(function(item) {
+          var feature = new ol.Feature(item);
+          feature.set('url',item.media.m);
+          var coordinate = transform([parseFloat(item.longitude),parseFloat(item.latitude)]);
+          var geometry = new ol.geom.Point(coordinate);
+          feature.setGeometry(geometry);
+          flickrSource.addFeature(feature);
+        });
+      }
+      function createScaleStyle(scale,url) {
+        style = new ol.style.Style({
+          image: new ol.style.Icon({
+            scale: scale,
+            src: url
+          })
+        });
+        return style;
+      }
+
+      var cache = {};
+      function flickrStyle(feature) {
+        var url = feature.get('url');
+        if(!cache[url]) {
+          cache[url] = createScaleStyle(0.10,url);
+        }
+        return [cache[url]];
+      }
+      var selectedCache = {};
+      function selectedStyle(feature) {
+        var url = feature.get('url');
+        if(!selectedCache[url]) {
+          selectedCache[url] = createScaleStyle(0.50,url);
+        }
+        return [selectedCache[url]];
+      }
+      var flickrSource = new ol.source.Vector();
+      var flickrLayer = new ol.layer.Vector({
+        source: flickrSource,
+        style: flickrStyle
+      });
+      var layer = new ol.layer.Tile({
+        source: new ol.source.OSM()
+      });
+      var center = ol.proj.transform([0,0], 'EPSG:4326', 'EPSG:3857');
+      var view = new ol.View({
+        center: center,
+        zoom: 1
+      });
+      var map = new ol.Map({
+        target: 'map',
+        layers: [layer,flickrLayer],
+        view: view
+      });
+      function photoContent(feature) {
+        var content = $("#photo-template").html();
+        var keys = ['author','author_id','date_taken','latitude','longitude','link','url','tags','title'];
+        for(var i = 0; i < keys.length; i++) {
+          var key = keys[i];
+          var value = feature.get(key);
+          content = content.replace('{'+key+'}',value);
+        }
+        return content;
+      }
+      var select = new ol.interaction.Select({
+        layers: [flickrLayer],
+        style: selectedStyle
+      });
+      map.addInteraction(select);
+      var selectedFeatures = select.getFeatures();
+      selectedFeatures.on('add',function(event) {
+        var feature = event.target.item(0);
+        var content = photoContent(feature);
+        $("#photo_info").append(content);
+      });
+      selectedFeatures.on('remove',function(event) {
+        $("#photo_info").empty();
+      });
+    </script>
+    <script type="text/html" id="photo-template">
+      <a href="{link}" target="_blank" title="Click to open photo in new tab"
+      style="float:left;"><img src="{url}"/></a><br/>
+      <p>
+        Taken by <a href="http://www.flickr.com/people/{author_id}" target="_blank"
+        title="Click to view author details in new tab">{author}</a> on {date_taken} at lat: {latitude} lon: {longitude}
+      </p>
+      <br />
+      <p>
+        Tagged in <b>{tags}</b>
+      </p>
+    </script>
+  </body>
+</html>
